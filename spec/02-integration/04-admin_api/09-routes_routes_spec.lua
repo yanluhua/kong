@@ -244,9 +244,9 @@ for _, strategy in helpers.each_strategy() do
                 code    = Errors.codes.SCHEMA_VIOLATION,
                 name    = "schema violation",
                 message = "schema violation " ..
-                          "(protocols.1: expected one of: http, https, tcp, tls)",
+                          "(protocols.1: expected one of: grpc, grpcs, http, https, tcp, tls)",
                 fields = {
-                  protocols = { "expected one of: http, https, tcp, tls" },
+                  protocols = { "expected one of: grpc, grpcs, http, https, tcp, tls" },
                 }
               }, cjson.decode(body))
 
@@ -264,10 +264,10 @@ for _, strategy in helpers.each_strategy() do
                 code    = Errors.codes.SCHEMA_VIOLATION,
                 name    = "schema violation",
                 message = "2 schema violations " ..
-                  "(protocols.1: expected one of: http, https, tcp, tls; " ..
+                  "(protocols.1: expected one of: grpc, grpcs, http, https, tcp, tls; " ..
                   [[service.name: invalid value '\o/': it must only contain alphanumeric and '., -, _, ~' characters)]],
                 fields = {
-                  protocols = { "expected one of: http, https, tcp, tls" },
+                  protocols = { "expected one of: grpc, grpcs, http, https, tcp, tls" },
                   service = {
                     name = [[invalid value '\o/': it must only contain alphanumeric and '., -, _, ~' characters]]
                   }
@@ -754,9 +754,9 @@ for _, strategy in helpers.each_strategy() do
                   code    = Errors.codes.SCHEMA_VIOLATION,
                   name    = "schema violation",
                   message = "schema violation " ..
-                    "(protocols.1: expected one of: http, https, tcp, tls)",
+                    "(protocols.1: expected one of: grpc, grpcs, http, https, tcp, tls)",
                   fields  = {
-                    protocols = { "expected one of: http, https, tcp, tls" },
+                    protocols = { "expected one of: grpc, grpcs, http, https, tcp, tls" },
                   }
                 }, cjson.decode(body))
 
