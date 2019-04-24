@@ -995,6 +995,15 @@ return {
       local service        = match_t.service
       local upstream_url_t = match_t.upstream_url_t
 
+      -- Detect requests that need to be redirected from "proxy_pass" to "grpc_pass".
+      if service.protocol == "grpc" and var.kong_proxy_mode ~= "grpc" then
+         return ngx.exec("@grpc")
+      end
+
+      if service.protocol == "grpcs" and var.kong_proxy_mode ~= "grpcs" then
+         return ngx.exec("@grpcs")
+      end
+
       local realip_remote_addr = var.realip_remote_addr
       local forwarded_proto
       local forwarded_host
