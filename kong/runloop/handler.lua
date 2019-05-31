@@ -1191,11 +1191,11 @@ return {
       -- executed; detect requests that need to be redirected from `proxy_pass`
       -- to `grpc_pass`. After redirection, this function will return early
       if var.kong_proxy_mode ~= "grpc" and service and service.protocol == "grpc" then
-         return ngx.exec("@grpc")
+        return ngx.exec("@grpc")
       end
 
       if var.kong_proxy_mode ~= "grpcs" and service and service.protocol == "grpcs" then
-         return ngx.exec("@grpcs")
+        return ngx.exec("@grpcs")
       end
     end,
     -- Only executed if the `router` module found a route and allows nginx to proxy it.
