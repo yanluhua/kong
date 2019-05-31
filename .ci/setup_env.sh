@@ -64,6 +64,11 @@ if [[ "$TEST_SUITE" == "pdk" ]]; then
   cpanm --notest --local-lib=$TRAVIS_BUILD_DIR/perl5 local::lib && eval $(perl -I $TRAVIS_BUILD_DIR/perl5/lib/perl5/ -Mlocal::lib)
 fi
 
+# ----------------
+# Run gRPC server |
+# ----------------
+docker run -d --name grpcbin -p 15002:9000 -p 15003:9001 moul/grpcbin
+
 nginx -V
 resty -V
 luarocks --version
