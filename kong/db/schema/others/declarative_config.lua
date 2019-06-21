@@ -498,6 +498,14 @@ local function flatten(self, input)
 end
 
 
+local function load_routes_subschemas(routes_entity)
+  local routes_subschemas = require "kong.db.schema.entities.routes_subschemas"
+  for name, subschema in pairs(routes_subschemas) do
+    routes_entity:new_subschema(name, subschema)
+  end
+end
+
+
 function DeclarativeConfig.load(plugin_set)
   if not core_entities then
     -- a copy of constants.CORE_ENTITIES without "tags"
@@ -517,6 +525,10 @@ function DeclarativeConfig.load(plugin_set)
       local mod = require("kong.db.schema.entities." .. entity)
       local definition = utils.deep_copy(mod, false)
       all_schemas[entity] = Entity.new(definition)
+
+      if entity == "routes" then
+        load_routes_subschemas(all_schemas[entity])
+      end
     end
   end
 

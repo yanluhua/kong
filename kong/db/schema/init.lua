@@ -1012,9 +1012,19 @@ end
 
 local function get_subschema(self, input)
   if self.subschemas and self.subschema_key then
-    local subschema = self.subschemas[input[self.subschema_key]]
-    if subschema then
-      return self.subschemas[input[self.subschema_key]]
+    local input_key = input[self.subschema_key]
+
+    if type(input_key) == "string" then
+      return self.subschemas[input_key]
+    end
+
+    if type(input_key) == "table" then  -- if subschema key is a set, return
+      for _, v in ipairs(input_key) do  -- subschema for first key
+        local subschema = self.subschemas[v]
+        if subschema then
+          return subschema
+        end
+      end
     end
   end
   return nil
@@ -1692,11 +1702,16 @@ function Schema:validate(input, full_check)
         [self.subschema_key] = validation_errors.REQUIRED
       }
     end
-    if not (self.subschemas and self.subschemas[key]) then
-      local errmsg = self.subschema_error or validation_errors.SUBSCHEMA_UNKNOWN
-      return nil, {
-        [self.subschema_key] = errmsg:format(key)
-      }
+
+    -- TODO if subschema key is a table, check for each value or the first match?
+
+    if type(key) == "string" then
+      if not (self.subschemas and self.subschemas[key]) then
+        local errmsg = self.subschema_error or validation_errors.SUBSCHEMA_UNKNOWN
+        return nil, {
+          [self.subschema_key] = errmsg:format(key)
+        }
+      end
     end
   end
 

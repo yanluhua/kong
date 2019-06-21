@@ -354,11 +354,11 @@ for _, strategy in helpers.each_strategy() do
             strategy = strategy,
             message  = unindent([[
               schema violation
-              (must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http')
+              (must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https')
             ]], true, true),
             fields   = {
               ["@entity"] = {
-                "must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http'",
+                "must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https'",
               }
             },
 
@@ -833,11 +833,11 @@ for _, strategy in helpers.each_strategy() do
               strategy    = strategy,
               message  = unindent([[
                 schema violation
-                (must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http')
+                (must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https')
               ]], true, true),
               fields   = {
                 ["@entity"] = {
-                  "must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http'",
+                  "must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https'",
                 }
               },
             }, err_t)
@@ -862,14 +862,14 @@ for _, strategy in helpers.each_strategy() do
               strategy    = strategy,
               message  = unindent([[
                 3 schema violations
-                (must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http';
-                'snis' can only be set when 'protocols' is 'https' or 'tls';
+                ('snis' can only be set when 'protocols' is 'https' or 'tls';
+                must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http';
                 snis: length must be 0)
               ]], true, true),
               fields   = {
                 ["@entity"] = {
-                  "must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http'",
                   "'snis' can only be set when 'protocols' is 'https' or 'tls'",
+                  "must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http'",
                 },
                 ["snis"] = "length must be 0",
               },
@@ -916,11 +916,11 @@ for _, strategy in helpers.each_strategy() do
               strategy    = strategy,
               message  = unindent([[
                 schema violation
-                (must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http')
+                (must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https')
               ]], true, true),
               fields   = {
                 ["@entity"] = {
-                  "must set one of 'methods', 'hosts', 'paths' when 'protocols' is 'http'",
+                  "must set one of 'methods', 'hosts', 'paths', 'snis' when 'protocols' is 'https'",
                 }
               },
             }, err_t)
