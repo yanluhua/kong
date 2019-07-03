@@ -190,20 +190,20 @@ Schema.validators = {
     return true
   end,
 
-  eq = function(value, wanted)
+  eq = function(value, wanted, field)
     if value == wanted then
       return true
     end
     local str = (wanted == null) and "null" or tostring(wanted)
-    return nil, validation_errors.EQ:format(str)
+    return nil, field.err or validation_errors.EQ:format(str)
   end,
 
-  ne = function(value, wanted)
+  ne = function(value, wanted, field)
     if value ~= wanted then
       return true
     end
     local str = (wanted == null) and "null" or tostring(value)
-    return nil, validation_errors.NE:format(str)
+    return nil, field.err or validation_errors.NE:format(str)
   end,
 
   gt = function(value, limit)
@@ -812,7 +812,7 @@ function Schema:validate_field(field, value)
 
   if value == null then
     if field.ne == null then
-      return nil, validation_errors.NE:format("null")
+      return nil, field.err or validation_errors.NE:format("null")
     end
     if field.eq ~= nil and field.eq ~= null then
       return nil, validation_errors.EQ:format(tostring(field.eq))
@@ -824,7 +824,7 @@ function Schema:validate_field(field, value)
   end
 
   if field.eq == null then
-    return nil, validation_errors.EQ:format("null")
+    return nil, field.err or validation_errors.EQ:format("null")
   end
 
   if field.abstract then
