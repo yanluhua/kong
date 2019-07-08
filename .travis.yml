@@ -20,6 +20,9 @@ addons:
       - net-tools
       - libpcre3-dev
       - build-essential
+  hosts:
+    - grpcs_1.com
+    - grpcs_2.com
 
 env:
   global:
