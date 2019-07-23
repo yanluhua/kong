@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 use Test::Nginx::Socket::Lua;
 use t::Util;
 
-plan tests => repeat_each() * (blocks() * 4) - 5;
+plan tests => repeat_each() * (blocks() * 4) - 3;
 
 run_tests();
 
@@ -608,7 +608,7 @@ Content-Length: 19
 
 
 
-=== TEST 23: response.exit() does not send body with gRPC
+=== TEST 23: response.exit() uses the 'message' field of the body as grpc-message when sending as gRPC implicitly
 --- http_config eval: $t::Util::HttpConfig
 --- config
     set $kong_proxy_mode 'grpc';
@@ -634,7 +634,7 @@ grpc-message: hello
 
 
 
-=== TEST 24: response.exit() does sends body with gRPC when asked
+=== TEST 24: response.exit() sends a string body as a raw payload when sending as gRPC explicitly
 --- http_config eval: $t::Util::HttpConfig
 --- config
     set $kong_proxy_mode 'grpc';
@@ -645,7 +645,7 @@ grpc-message: hello
             local PDK = require "kong.pdk"
             local pdk = PDK.new()
 
-            pdk.response.exit(200, { message = "hello" }, {
+            pdk.response.exit(200, "hello", {
                 content_type = "application/grpc"
             })
         }
@@ -659,5 +659,61 @@ grpc-status: 0
 grpc-message: OK
 --- response_body chop
 hello
+--- no_error_log
+[error]
+
+
+
+=== TEST 25: response.exit() sends a string body as a raw payload when sending as gRPC implicitly
+--- http_config eval: $t::Util::HttpConfig
+--- config
+    set $kong_proxy_mode 'grpc';
+
+    location = /t {
+        default_type 'text/test';
+        access_by_lua_block {
+            local PDK = require "kong.pdk"
+            local pdk = PDK.new()
+
+            pdk.response.exit(200, "hello")
+        }
+    }
+--- request
+GET /t
+--- error_code: 200
+--- response_headers_like
+Content-Length: 5
+grpc-status: 0
+grpc-message: OK
+--- response_body chop
+hello
+--- no_error_log
+[error]
+
+
+
+=== TEST 26: response.exit() fails when passing a table body when sending as gRPC explicitly
+--- http_config eval: $t::Util::HttpConfig
+--- config
+    set $kong_proxy_mode 'grpc';
+
+    location = /t {
+        default_type 'text/test';
+        access_by_lua_block {
+            local PDK = require "kong.pdk"
+            local pdk = PDK.new()
+
+            local pok, perr = pcall(pdk.response.exit, 200, { message = "hello" }, {
+                content_type = "application/grpc"
+            })
+            assert(pok == nil)
+            ngx.say(perr)
+        }
+    }
+--- request
+GET /t
+--- error_code: 200
+--- response_body chop
+cannot encode table as gRPC
 --- no_error_log
 [error]

@@ -500,14 +500,12 @@ local function new(self, major_version)
       end
     end
 
-    local res_ctype = ngx.header[CONTENT_TYPE_NAME]
+    local res_ctype = headers and headers[CONTENT_TYPE_NAME]
     local req_ctype = ngx.var.content_type
 
     local is_grpc
-    local is_grpc_output
     if res_ctype then
       is_grpc = find(res_ctype, CONTENT_TYPE_GRPC, 1, true) == 1
-      is_grpc_output = is_grpc
     elseif GRPC_PROXY_MODES[ngx.var.kong_proxy_mode] then
       is_grpc = true
     elseif req_ctype then
@@ -533,15 +531,24 @@ local function new(self, major_version)
     end
 
     local json
-    if type(body) == "table" then
-      if is_grpc then
-        if type(body.message) == "string" then
-          body = body.message
-        else
-          body = nil -- grpc table encoding not supported currently
-        end
+    if is_grpc then
+      local grpc_message
 
-      else
+      if type(body) == "table" then
+        if type(body.message) == "string" then
+          grpc_message = body.message
+        end
+        body = nil
+      end
+
+      if grpc_status and not grpc_message then
+        grpc_message = GRPC_MESSAGES[grpc_status]
+      end
+
+      ngx.header[GRPC_MESSAGE_NAME] = grpc_message
+
+    else
+      if type(body) == "table" then
         local err
         json, err = cjson.encode(body)
         if err then
@@ -556,24 +563,11 @@ local function new(self, major_version)
       ngx.print(json)
 
     elseif body ~= nil then
-      if is_grpc and not is_grpc_output then
-        ngx.header[CONTENT_LENGTH_NAME] = 0
-        ngx.header[GRPC_MESSAGE_NAME] = body
-
-      else
-        ngx.header[CONTENT_LENGTH_NAME] = #body
-        if grpc_status then
-          ngx.header[GRPC_MESSAGE_NAME] = GRPC_MESSAGES[grpc_status]
-        end
-
-        ngx.print(body)
-      end
+      ngx.header[CONTENT_LENGTH_NAME] = #body
+      ngx.print(body)
 
     else
       ngx.header[CONTENT_LENGTH_NAME] = 0
-      if grpc_status then
-        ngx.header[GRPC_MESSAGE_NAME] = GRPC_MESSAGES[grpc_status]
-      end
     end
 
     return ngx.exit(status)
@@ -617,12 +611,9 @@ local function new(self, major_version)
   -- as-is.  It is the caller's responsibility to set the appropriate
   -- Content-Type header via the third argument.  As a convenience, `body` can
   -- be specified as a table; in which case, it will be JSON-encoded and the
-  -- `application/json` Content-Type header will be set. On gRPC we cannot send
-  -- the `body` with this function at the moment at least, so what it does
-  -- instead is that it sends "body" in `grpc-message` header instead. If the
-  -- body is a table it looks for a field `message` in it, and uses that as a
-  -- `grpc-message` header. Though, if you have specified `Content-Type` header
-  -- with exact or prefix of `application/grpc`` the body will be send.
+  -- `application/json` Content-Type header will be set. On gRPC we currently
+  -- do not encode the `body` table, but instead this function sends the
+  -- `body.message` value, if present, in the `grpc-message` header.
   --
   -- The third, optional, `headers` argument can be a table specifying response
   -- headers to send. If specified, its behavior is similar to
@@ -682,6 +673,13 @@ local function new(self, major_version)
 
     if headers ~= nil then
       validate_headers(headers)
+    end
+
+    if headers
+       and headers[CONTENT_TYPE_NAME]
+       and find(headers[CONTENT_TYPE_NAME], CONTENT_TYPE_GRPC, 1, true) == 1
+       and type(body) == "table" then
+      error("cannot encode table as gRPC", 2)
     end
 
     local ctx = ngx.ctx
