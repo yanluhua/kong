@@ -381,7 +381,7 @@ function _M.attach_new_db_routes(app, routes)
         return method_handler(self, singletons.db, handler_helpers)
       end
 
-      methods[method_name] = parse_params(wrapped_handler)
+      methods[method_name] = wrapped_handler
     end
 
     app:match(route_path, route_path, app_helpers.respond_to(methods))
