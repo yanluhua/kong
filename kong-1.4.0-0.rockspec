@@ -1,5 +1,6 @@
 package = "kong"
 version = "1.4.0-0"
+rockspec_format = "3.0"
 supported_platforms = {"linux", "macosx"}
 source = {
   url = "git://github.com/Kong/kong",
@@ -37,14 +38,14 @@ dependencies = {
   "lua-resty-cookie == 0.1.0",
   "lua-resty-mlcache == 2.4.0",
   -- external Kong plugins
-  "kong-plugin-azure-functions ~> 0.4",
-  "kong-plugin-zipkin ~> 0.1",
+  "dndx/kong-plugin-azure-functions dev",
+  "dndx/kong-plugin-zipkin dev",
   "kong-plugin-serverless-functions ~> 0.3",
   "kong-prometheus-plugin ~> 0.6",
   "kong-proxy-cache-plugin ~> 1.2",
-  "kong-plugin-request-transformer ~> 1.2",
+  "dndx/kong-plugin-request-transformer dev",
   "kong-plugin-session ~> 2.2",
-  "kong-plugin-aws-lambda ~> 3.0",
+  "dndx/kong-plugin-aws-lambda dev",
 }
 build = {
   type = "builtin",
