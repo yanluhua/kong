@@ -188,7 +188,6 @@ for _, strategy in helpers.each_strategy() do
         stream_listen = helpers.get_proxy_ip(false) .. ":19000," ..
                         helpers.get_proxy_ip(false) .. ":19001," ..
                         helpers.get_proxy_ip(true)  .. ":19443",
-        service_mesh = "on",
 
       }))
 
@@ -401,40 +400,6 @@ for _, strategy in helpers.each_strategy() do
       assert.match("streams=1", reports_data[1])
       assert.match("tcp_streams=1", reports_data[1])
       assert.match("tls_streams=0", reports_data[1])
-    end)
-
-    it("#stream reports tls streams", function()
-      local tcp = require "socket".tcp()
-      local ssl = require("ssl")
-
-      assert(tcp:connect(helpers.get_proxy_ip(true), 19443))
-
-      tcp = ssl.wrap(tcp, {
-        mode     = "client",
-        verify   = "none",
-        protocol = "any",
-      })
-
-      -- TODO: should SNI really be mandatory?
-      tcp:sni("this-is-needed.test")
-
-      assert(tcp:dohandshake())
-
-      -- TODO: we need to get rid of the next line!
-      assert(tcp:send(MESSAGE))
-
-      local body = assert(tcp:receive("*a"))
-      assert.equal(MESSAGE, body)
-
-      tcp:close()
-
-      reports_send_stream_ping()
-
-      local _, reports_data = assert(reports_server:stop())
-      assert.same(1, #reports_data)
-      assert.match("streams=1", reports_data[1])
-      assert.match("tcp_streams=0", reports_data[1])
-      assert.match("tls_streams=1", reports_data[1])
     end)
   end)
 end
