@@ -1,30 +1,38 @@
 return {
   postgres = {
-    up = [[
-      DO $$
-      BEGIN
-        ALTER TABLE IF EXISTS ONLY "plugins" DROP COLUMN "run_on";
-      EXCEPTION WHEN UNDEFINED_COLUMN THEN
-        -- Do nothing, accept existing state
-      END;
-      $$;
+    up = [[]],
+
+    teardown = function(connector)
+      assert(connector:query([[
+        DO $$
+        BEGIN
+          ALTER TABLE IF EXISTS ONLY "plugins" DROP COLUMN "run_on";
+        EXCEPTION WHEN UNDEFINED_COLUMN THEN
+          -- Do nothing, accept existing state
+        END;
+        $$;
 
 
-      DO $$
-      BEGIN
-        DROP TABLE IF EXISTS "cluster_ca";
-      END;
-      $$;
-    ]],
+        DO $$
+        BEGIN
+          DROP TABLE IF EXISTS "cluster_ca";
+        END;
+        $$;
+      ]]))
+    end,
   },
 
   cassandra = {
-    up = [[
-      DROP INDEX IF EXISTS plugins_run_on_idx;
-      ALTER TABLE plugins DROP run_on;
+    up = [[]],
+
+    teardown = function(connector)
+      assert(connector:query([[
+        DROP INDEX IF EXISTS plugins_run_on_idx;
+        ALTER TABLE plugins DROP run_on;
 
 
-      DROP TABLE IF EXISTS cluster_ca;
-    ]],
+        DROP TABLE IF EXISTS cluster_ca;
+      ]]))
+    end,
   },
 }
