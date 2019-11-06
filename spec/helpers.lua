@@ -235,7 +235,6 @@ local function get_db_utils(strategy, tables, plugins)
     dcbp = nil
   else
     bp = assert(dc_blueprints.new(db))
-    bp.cluster_ca:insert()
     dcbp = bp
   end
 

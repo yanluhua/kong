@@ -179,7 +179,7 @@ for _, strategy in helpers.each_strategy() do
         local exported_str = table.concat(fake_file.buffer)
         local yaml = lyaml.load(exported_str)
 
-        -- ensure tags, cluster_ca & basicauth_credentials are not being exported
+        -- ensure tags & basicauth_credentials are not being exported
         local toplevel_keys = {}
         for k in pairs(yaml) do
           toplevel_keys[#toplevel_keys + 1] = k

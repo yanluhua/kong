@@ -8,6 +8,13 @@ return {
         -- Do nothing, accept existing state
       END;
       $$;
+
+
+      DO $$
+      BEGIN
+        DROP TABLE IF EXISTS "cluster_ca";
+      END;
+      $$;
     ]],
   },
 
@@ -15,6 +22,9 @@ return {
     up = [[
       DROP INDEX IF EXISTS plugins_run_on_idx;
       ALTER TABLE plugins DROP run_on;
+
+
+      DROP TABLE IF EXISTS cluster_ca;
     ]],
   },
 }

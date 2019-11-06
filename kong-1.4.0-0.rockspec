@@ -119,7 +119,6 @@ build = {
 
     ["kong.status"] = "kong/status/init.lua",
 
-    ["kong.tools.cluster_ca"] = "kong/tools/cluster_ca.lua",
     ["kong.tools.dns"] = "kong/tools/dns.lua",
     ["kong.tools.utils"] = "kong/tools/utils.lua",
     ["kong.tools.printable"] = "kong/tools/printable.lua",
@@ -142,7 +141,6 @@ build = {
     ["kong.db.dao.tags"] = "kong/db/dao/tags.lua",
     ["kong.db.declarative"] = "kong/db/declarative/init.lua",
     ["kong.db.schema"] = "kong/db/schema/init.lua",
-    ["kong.db.schema.entities.cluster_ca"] = "kong/db/schema/entities/cluster_ca.lua",
     ["kong.db.schema.entities.consumers"] = "kong/db/schema/entities/consumers.lua",
     ["kong.db.schema.entities.routes"] = "kong/db/schema/entities/routes.lua",
     ["kong.db.schema.entities.routes_subschemas"] = "kong/db/schema/entities/routes_subschemas.lua",
