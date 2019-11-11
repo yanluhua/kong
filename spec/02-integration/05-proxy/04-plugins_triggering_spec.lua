@@ -27,7 +27,6 @@ for _, strategy in helpers.each_strategy() do
       }, {
         "error-handler-log",
         "short-circuit",
-        "short-circuit-last",
         "error-generator",
       })
 

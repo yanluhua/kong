@@ -1511,7 +1511,7 @@ local function kong_exec(cmd, env, pl_returns, env_vars)
   if not env.plugins then
     env.plugins = "bundled,dummy,cache,rewriter,error-handler-log," ..
                   "error-generator,error-generator-last," ..
-                  "short-circuit,short-circuit-last"
+                  "short-circuit"
   end
 
   -- build Kong environment variables
