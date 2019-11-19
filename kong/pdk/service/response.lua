@@ -21,9 +21,10 @@ local check_phase = phase_checker.check
 local PHASES = phase_checker.phases
 
 
-local header_body_log = phase_checker.new(PHASES.header_filter,
-                                          PHASES.body_filter,
-                                          PHASES.log)
+local access_header_body_log = phase_checker.new(PHASES.access,
+                                                 PHASES.header_filter,
+                                                 PHASES.body_filter,
+                                                 PHASES.log)
 
 
 local attach_resp_headers_mt
@@ -73,14 +74,14 @@ local function new(pdk, major_version)
   -- Returns the HTTP status code of the response from the Service as a Lua number.
   --
   -- @function kong.service.response.get_status
-  -- @phases `header_filter`, `body_filter`, `log`
+  -- @phases `access`, `header_filter`, `body_filter`, `log`
   -- @treturn number|nil the status code from the response from the Service, or `nil`
   -- if the request was not proxied (i.e. `kong.response.get_source()` returned
   -- anything other than `"service"`.
   -- @usage
   -- kong.log.inspect(kong.service.response.get_status()) -- 418
   function response.get_status()
-    check_phase(header_body_log)
+    check_phase(access_header_body_log)
 
     return tonumber(sub(ngx.var.upstream_status or "", -3))
   end
@@ -103,7 +104,7 @@ local function new(pdk, major_version)
   -- `max_headers` argument can be specified to customize this limit, but must be
   -- greater than **1** and not greater than **1000**.
   -- @function kong.service.response.get_headers
-  -- @phases `header_filter`, `body_filter`, `log`
+  -- @phases `access`, `header_filter`, `body_filter`, `log`
   -- @tparam[opt] number max_headers customize the headers to parse
   -- @treturn table the response headers in table form
   -- @treturn string err If more headers than `max_headers` were present, a
@@ -120,7 +121,7 @@ local function new(pdk, major_version)
   --   kong.log.inspect(headers["X-Another"][2]) -- "baz"
   -- end
   function response.get_headers(max_headers)
-    check_phase(header_body_log)
+    check_phase(access_header_body_log)
 
     if max_headers == nil then
       return attach_resp_headers_mt(ngx.resp.get_headers(MAX_HEADERS_DEFAULT))
@@ -147,7 +148,7 @@ local function new(pdk, major_version)
   -- itself).
   --
   -- @function kong.service.response.get_header
-  -- @phases `header_filter`, `body_filter`, `log`
+  -- @phases `access`, `header_filter`, `body_filter`, `log`
   -- @tparam string name The name of the header.
   --
   -- Header names in are case-insensitive and are normalized to lowercase, and
@@ -167,7 +168,7 @@ local function new(pdk, major_version)
   -- kong.log.inspect(kong.service.response.get_header("x-custom-header")) -- "bla"
   -- kong.log.inspect(kong.service.response.get_header("X-Another"))       -- "foo bar"
   function response.get_header(name)
-    check_phase(header_body_log)
+    check_phase(access_header_body_log)
 
     if type(name) ~= "string" then
       error("name must be a string", 2)

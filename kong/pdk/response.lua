@@ -38,12 +38,6 @@ end
 
 local PHASES = phase_checker.phases
 
-
-local header_body_log = phase_checker.new(PHASES.header_filter,
-                                          PHASES.body_filter,
-                                          PHASES.log,
-                                          PHASES.admin_api)
-
 local rewrite_access = phase_checker.new(PHASES.rewrite,
                                          PHASES.access,
                                          PHASES.admin_api)
@@ -125,13 +119,13 @@ local function new(self, major_version)
   -- returned as-is.
   --
   -- @function kong.response.get_status
-  -- @phases header_filter, body_filter, log, admin_api
+  -- @phases rewrite, access, header_filter, body_filter, log, admin_api
   -- @treturn number status The HTTP status code currently set for the
   -- downstream response
   -- @usage
   -- kong.response.get_status() -- 200
   function _RESPONSE.get_status()
-    check_phase(header_body_log)
+    check_phase(PHASES.request)
 
     return ngx.status
   end
@@ -151,7 +145,7 @@ local function new(self, major_version)
   -- of the first occurrence of this header.
   --
   -- @function kong.response.get_header
-  -- @phases header_filter, body_filter, log, admin_api
+  -- @phases rewrite, access, header_filter, body_filter, log, admin_api
   -- @tparam string name The name of the header
   --
   -- Header names are case-insensitive and dashes (`-`) can be written as
@@ -169,7 +163,7 @@ local function new(self, major_version)
   -- kong.response.get_header("X-Another")       -- "foo bar"
   -- kong.response.get_header("X-None")          -- nil
   function _RESPONSE.get_header(name)
-    check_phase(header_body_log)
+    check_phase(PHASES.request)
 
     if type(name) ~= "string" then
       error("header name must be a string", 2)
@@ -206,7 +200,7 @@ local function new(self, major_version)
   -- be greater than **1** and not greater than **1000**.
   --
   -- @function kong.response.get_headers
-  -- @phases header_filter, body_filter, log, admin_api
+  -- @phases rewrite, access, header_filter, body_filter, log, admin_api
   -- @tparam[opt] number max_headers Limits how many headers are parsed
   -- @treturn table headers A table representation of the headers in the
   -- response
@@ -225,7 +219,7 @@ local function new(self, major_version)
   -- headers.x_another[1]    -- "foo bar"
   -- headers["X-Another"][2] -- "baz"
   function _RESPONSE.get_headers(max_headers)
-    check_phase(header_body_log)
+    check_phase(PHASES.request)
 
     if max_headers == nil then
       return ngx.resp.get_headers(MAX_HEADERS_DEFAULT)
@@ -264,7 +258,7 @@ local function new(self, major_version)
   --   contacting the proxied Service.
   --
   -- @function kong.response.get_source
-  -- @phases header_filter, body_filter, log, admin_api
+  -- @phases rewrite, access, header_filter, body_filter, log, admin_api
   -- @treturn string the source.
   -- @usage
   -- if kong.response.get_source() == "service" then
@@ -275,7 +269,7 @@ local function new(self, major_version)
   --   kong.log("There was an early exit while processing the request")
   -- end
   function _RESPONSE.get_source()
-    check_phase(header_body_log)
+    check_phase(PHASES.request)
 
     local ctx = ngx.ctx
 
