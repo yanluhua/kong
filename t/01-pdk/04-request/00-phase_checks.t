@@ -250,6 +250,17 @@ qq{
                 body_filter   = false,
                 log           = false,
                 admin_api     = true,
+            }, {
+                method        = "proxy",
+                args          = {},
+                init_worker   = "pending",
+                certificate   = "pending",
+                rewrite       = "pending",
+                access        = true,
+                header_filter = "pending",
+                body_filter   = "pending",
+                log           = "pending",
+                admin_api     = "pending",
             },
         }
 
