@@ -103,24 +103,10 @@ local ipairs           = ipairs
 local assert           = assert
 local tostring         = tostring
 local coroutine        = coroutine
-local getmetatable     = getmetatable
-local registry         = debug.getregistry()
 local get_last_failure = ngx_balancer.get_last_failure
 local set_current_peer = ngx_balancer.set_current_peer
-local set_ssl_ctx      = ngx_balancer.set_ssl_ctx
 local set_timeouts     = ngx_balancer.set_timeouts
 local set_more_tries   = ngx_balancer.set_more_tries
-
-
-local ffi = require "ffi"
-local cast = ffi.cast
-local voidpp = ffi.typeof("void**")
-
-
-local TLS_SCHEMES = {
-  https = true,
-  tls = true,
-}
 
 
 local declarative_entities
@@ -772,36 +758,6 @@ function Kong.balancer()
     local retries = balancer_data.retries
     if retries > 0 then
       set_more_tries(retries)
-    end
-  end
-
-  local ssl_ctx = balancer_data.ssl_ctx
-  if TLS_SCHEMES[balancer_data.scheme] and ssl_ctx ~= nil then
-    if not set_ssl_ctx then
-      -- this API depends on an OpenResty patch
-      ngx_log(ngx_ERR, "failed to set the upstream SSL_CTX*: missing ",
-                       "\"ngx.balancer\".set_ssl_ctx API")
-
-      ctx.KONG_BALANCER_ENDED_AT = get_now_ms()
-      ctx.KONG_BALANCER_TIME = ctx.KONG_BALANCER_ENDED_AT - ctx.KONG_BALANCER_START
-      ctx.KONG_PROXY_LATENCY = ctx.KONG_BALANCER_ENDED_AT - ctx.KONG_PROCESSING_START
-
-      return ngx.exit(500)
-    end
-
-    -- ensure a third-party (e.g. plugin) did not set an invalid type for
-    -- this value as such mistakes could cause segfaults
-    assert(getmetatable(ssl_ctx) == registry["SSL_CTX*"],
-           "unknown userdata type, expected SSL_CTX*")
-    local ok, err = set_ssl_ctx(cast(voidpp, ssl_ctx)[0])
-    if not ok then
-      ngx_log(ngx_ERR, "failed to set the upstream SSL_CTX*: ", err)
-
-      ctx.KONG_BALANCER_ENDED_AT = get_now_ms()
-      ctx.KONG_BALANCER_TIME = ctx.KONG_BALANCER_ENDED_AT - ctx.KONG_BALANCER_START
-      ctx.KONG_PROXY_LATENCY = ctx.KONG_BALANCER_ENDED_AT - ctx.KONG_PROCESSING_START
-
-      return ngx.exit(500)
     end
   end
 
