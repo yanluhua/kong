@@ -148,7 +148,7 @@ pipeline {
                     }
                     post {
                         always {
-                            dir('../kong-build-tools'){ sh 'make cleanup_build' }
+                            dir('../kong-build-tools'){ sh 'make cleanup-build' }
                         }
                     }
                 }
@@ -174,7 +174,6 @@ pipeline {
                         sh 'sudo ln -s $HOME/bin/kubectl /usr/local/bin/kubectl'
                         sh 'sudo ln -s $HOME/bin/kind /usr/local/bin/kind'
                         dir('../kong-build-tools'){ sh 'make setup-ci' }
-                        sh 'REPOSITORY_NAME=`basename ${GIT_URL%.*}`-nightly KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=trusty BUILDX=false make nightly-release'
                         sh 'REPOSITORY_NAME=`basename ${GIT_URL%.*}`-nightly KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=bionic BUILDX=false make nightly-release'
                     }
                 }
@@ -194,6 +193,8 @@ pipeline {
                         REDHAT_PASSWORD = "${env.REDHAT_PSW}"
                         BINTRAY_USR = 'kong-inc_travis-ci@kong'
                         BINTRAY_KEY = credentials('bintray_travis_key')
+                        PRIVATE_KEY_FILE = credentials('kong.private.gpg-key.asc')
+                        PRIVATE_KEY_PASSPHRASE = credentials('kong.private.gpg-key.asc.password')
                     }
                     steps {
                         sh 'make setup-kong-build-tools'
@@ -201,6 +202,7 @@ pipeline {
                         sh 'sudo ln -s $HOME/bin/kubectl /usr/local/bin/kubectl'
                         sh 'sudo ln -s $HOME/bin/kind /usr/local/bin/kind'
                         dir('../kong-build-tools'){ sh 'make setup-ci' }
+                        sh 'cp $PRIVATE_KEY_FILE ../kong-build-tools/kong.private.gpg-key.asc'
                         sh 'REPOSITORY_NAME=`basename ${GIT_URL%.*}`-nightly KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=6 make nightly-release'
                         sh 'REPOSITORY_NAME=`basename ${GIT_URL%.*}`-nightly KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=7 make nightly-release'
                     }
